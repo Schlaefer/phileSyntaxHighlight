@@ -54,6 +54,7 @@ class Plugin extends AbstractPlugin implements EventObserverInterface
 
         // Geshi will encode again
         $source = html_entity_decode($source);
+        $source = trim($source);
 
         $this->Geshi->set_source($source);
         $this->Geshi->set_language($language);
