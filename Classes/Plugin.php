@@ -11,8 +11,7 @@ class Plugin extends AbstractPlugin implements EventObserverInterface
 {
 
     protected $registeredEvents = [
-      'after_parse_content' => 'highlight',
-      'after_render_template' => 'outputCss'
+        'after_parse_content' => 'highlight',
     ];
 
     /**
@@ -38,11 +37,11 @@ class Plugin extends AbstractPlugin implements EventObserverInterface
     protected function highlight($data)
     {
         $data['content'] = preg_replace_callback(
-          '/<pre><code\s+class="(?P<lang>.*?)">(?P<code>.*?)<\/code><\/pre>/s',
-          function ($matches) {
-              return $this->geshi($matches['code'], $matches['lang']);
-          },
-          $data['content']
+            '/<pre><code\s+class="(?P<lang>.*?)">(?P<code>.*?)<\/code><\/pre>/s',
+            function ($matches) {
+                return $this->geshi($matches['code'], $matches['lang']);
+            },
+            $data['content']
         );
     }
 
@@ -60,23 +59,16 @@ class Plugin extends AbstractPlugin implements EventObserverInterface
 
         $this->Geshi->set_tab_width(2);
         $this->Geshi->enable_classes();
-        $this->sendCss = true;
 
-        return $this->Geshi->parse_code();
-    }
+        $html = $this->Geshi->parse_code();
 
-    protected function outputCss($data)
-    {
         if (!$this->sendCss) {
-            return;
+            $css = '<style>' . $this->Geshi->get_stylesheet() . '</style>';
+            $html = $css . $html;
+            $this->sendCss = true;
         }
-        $css = '<style>' . $this->Geshi->get_stylesheet() . '</style>';
-        $data['output'] = preg_replace(
-          '/(<head>)/i',
-          "\\0\n" . $css,
-          $data['output']
-        );
 
+        return $html;
     }
 
 }
