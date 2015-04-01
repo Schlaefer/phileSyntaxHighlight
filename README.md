@@ -7,7 +7,7 @@ Syntax highlight source code.
 ### 1.1 Installation (composer) ###
 
 ```json
-{
+"require": {
 	"siezi/phile-syntax-highlight": "*"
 }
 ```

@@ -5,12 +5,9 @@
   "description": "Syntax Highlight Plugin for PhileCMS",
   "homepage": "https://github.com/Schlaefer/phileIndexPaginate",
   "keywords": ["phile", "highlight"],
-  "config": {
-    "preferred-install": "dist"
-  },
   "require": {
     "phile-cms/phile": ">=1.4.0",
     "phile-cms/plugin-installer-plugin": ">=1.0.2",
-    "geshi/geshi": "dev-master"
+    "easybook/geshi": "v1.0.8.13"
   }
 }
