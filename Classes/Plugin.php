@@ -1,6 +1,6 @@
 <?php
 
-namespace Phile\Plugin\Siezi\PhileGeshi;
+namespace Phile\Plugin\Siezi\PhileSyntaxHighlight;
 
 use GeSHi;
 use Phile\Core\Event;
