@@ -3,14 +3,12 @@
 namespace Phile\Plugin\Siezi\PhileSyntaxHighlight;
 
 use GeSHi;
-use Phile\Core\Event;
 use Phile\Plugin\AbstractPlugin;
-use Phile\Gateway\EventObserverInterface;
 
-class Plugin extends AbstractPlugin implements EventObserverInterface
+class Plugin extends AbstractPlugin
 {
 
-    protected $registeredEvents = [
+    protected $events = [
       'after_parse_content' => 'highlight',
       'after_render_template' => 'outputCss'
     ];
@@ -21,19 +19,6 @@ class Plugin extends AbstractPlugin implements EventObserverInterface
     protected $Geshi;
 
     protected $sendCss = false;
-
-    public function __construct()
-    {
-        foreach ($this->registeredEvents as $event => $method) {
-            Event::registerEvent($event, $this);
-        }
-    }
-
-    public function on($eventKey, $data = null)
-    {
-        $method = $this->registeredEvents[$eventKey];
-        $this->{$method}($data);
-    }
 
     protected function highlight($data)
     {
