@@ -3,15 +3,21 @@
 namespace Phile\Plugin\Siezi\PhileSyntaxHighlight;
 
 use GeSHi;
+use Phile\Core\ServiceLocator;
 use Phile\Plugin\AbstractPlugin;
 
 class Plugin extends AbstractPlugin
 {
 
     protected $events = [
-      'after_parse_content' => 'highlight',
-      'after_render_template' => 'outputCss'
+        'after_init_core' => 'init',
+        'after_parse_content' => 'highlight',
+        'after_render_template' => 'outputCss'
     ];
+
+    protected $cache;
+
+    protected $css = [];
 
     /**
      * @var Geshi
@@ -19,6 +25,12 @@ class Plugin extends AbstractPlugin
     protected $Geshi;
 
     protected $sendCss = false;
+
+    protected function init() {
+        if (ServiceLocator::hasService('Phile_Cache')) {
+            $this->cache = ServiceLocator::getService('Phile_Cache');
+        }
+    }
 
     protected function highlight($data)
     {
@@ -33,22 +45,37 @@ class Plugin extends AbstractPlugin
 
     protected function geshi($source, $language)
     {
-        if (!$this->Geshi) {
-            $this->Geshi = new Geshi();
+        $this->sendCss = true;
+
+        $key = 'Siezi.PhileSyntaxHighligh.highlight.' . md5($source . $language);
+        if ($this->cache && $this->cache->has($key)) {
+            $storage = $this->cache->get($key);
+            $this->css[$language] = $storage['css'];
+            return $storage['html'];
         }
 
         // Geshi will encode again
         $source = html_entity_decode($source);
         $source = trim($source);
 
+        if (!$this->Geshi) {
+            $this->Geshi = new Geshi();
+            $this->Geshi->set_tab_width(2);
+            $this->Geshi->enable_classes();
+        }
         $this->Geshi->set_source($source);
         $this->Geshi->set_language($language);
 
-        $this->Geshi->set_tab_width(2);
-        $this->Geshi->enable_classes();
-        $this->sendCss = true;
+        $html = $this->Geshi->parse_code();
+        $css = $this->Geshi->get_stylesheet();
 
-        return $this->Geshi->parse_code();
+        $this->css[$language] = $css;
+
+        if ($this->cache) {
+            $this->cache->set($key, ['css' => $css, 'html' => $html]);
+        }
+
+        return $html;
     }
 
     protected function outputCss($data)
@@ -56,7 +83,7 @@ class Plugin extends AbstractPlugin
         if (!$this->sendCss) {
             return;
         }
-        $css = '<style>' . $this->Geshi->get_stylesheet() . '</style>';
+        $css = '<style>' . implode("\n", $this->css) . '</style>';
         $data['output'] = preg_replace(
           '/(<head>)/i',
           "\\0\n" . $css,
