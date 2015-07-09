@@ -59,17 +59,18 @@ class Plugin extends AbstractPlugin
         $source = trim($source);
 
         if (!$this->Geshi) {
-            $this->Geshi = new Geshi();
-            $this->Geshi->set_tab_width(2);
-            $this->Geshi->enable_classes();
+            $this->Geshi = new GeSHi();
+            $this->settings['geshiConfigurator']($this->Geshi);
         }
         $this->Geshi->set_source($source);
         $this->Geshi->set_language($language);
 
         $html = $this->Geshi->parse_code();
-        $css = $this->Geshi->get_stylesheet();
 
-        $this->css[$language] = $css;
+        if ($this->Geshi->use_classes) {
+            $css = $this->Geshi->get_stylesheet();
+            $this->css[$language] = $css;
+        }
 
         if ($this->cache) {
             $this->cache->set($key, ['css' => $css, 'html' => $html]);
@@ -80,7 +81,7 @@ class Plugin extends AbstractPlugin
 
     protected function outputCss($data)
     {
-        if (!$this->sendCss) {
+        if (!$this->sendCss || empty($this->css)) {
             return;
         }
         $css = '<style>' . implode("\n", $this->css) . '</style>';
