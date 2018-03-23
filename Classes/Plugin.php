@@ -8,7 +8,6 @@ use Phile\Plugin\AbstractPlugin;
 
 class Plugin extends AbstractPlugin
 {
-
     protected $events = [
         'after_init_core' => 'init',
         'after_parse_content' => 'highlight',
@@ -26,7 +25,8 @@ class Plugin extends AbstractPlugin
 
     protected $sendCss = false;
 
-    protected function init() {
+    protected function init()
+    {
         if (ServiceLocator::hasService('Phile_Cache')) {
             $this->cache = ServiceLocator::getService('Phile_Cache');
         }
@@ -35,11 +35,11 @@ class Plugin extends AbstractPlugin
     protected function highlight($data)
     {
         $data['content'] = preg_replace_callback(
-          '/<pre><code\s+class="(?P<lang>.*?)">(?P<code>.*?)<\/code><\/pre>/s',
-          function ($matches) {
-              return $this->geshi($matches['code'], $matches['lang']);
-          },
-          $data['content']
+            '/<pre><code\s+class="(?P<lang>.*?)">(?P<code>.*?)<\/code><\/pre>/s',
+            function ($matches) {
+                return $this->geshi($matches['code'], $matches['lang']);
+            },
+            $data['content']
         );
     }
 
@@ -87,11 +87,9 @@ class Plugin extends AbstractPlugin
         }
         $css = '<style>' . implode("\n", $this->css) . '</style>';
         $data['output'] = preg_replace(
-          '/(<\/head>)/i',
-          $css . "\n\\0\n",
-          $data['output']
+            '/(<\/head>)/i',
+            $css . "\n\\0\n",
+            $data['output']
         );
-
     }
-
 }

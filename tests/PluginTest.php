@@ -17,9 +17,9 @@ class PluginTest extends TestCase
         ]);
         $eventBus = new Event;
         $eventBus->register('after_load_content', function ($name, $data) {
-            $data['page']->setContent("```php\n$a = 5;\n```");
+            $data['page']->setContent("```php\n\$a = 5;\n```");
         });
-        $core = $this->createPhileCore(null, $config);
+        $core = $this->createPhileCore($eventBus, $config);
         $request = $this->createServerRequestFromArray();
         $response = $this->createPhileResponse($core, $request);
 
