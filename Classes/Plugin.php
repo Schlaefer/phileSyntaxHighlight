@@ -60,6 +60,7 @@ class Plugin extends AbstractPlugin
 
         if (!$this->Geshi) {
             $this->Geshi = new GeSHi();
+            $this->Geshi->enable_classes($this->settings['enable_classes']);
             $this->settings['geshiConfigurator']($this->Geshi);
         }
         $this->Geshi->set_source($source);
@@ -67,7 +68,7 @@ class Plugin extends AbstractPlugin
 
         $html = $this->Geshi->parse_code();
 
-        if ($this->Geshi->use_classes) {
+        if ($this->settings['enable_classes']) {
             $css = $this->Geshi->get_stylesheet();
             $this->css[$language] = $css;
         }
@@ -86,8 +87,8 @@ class Plugin extends AbstractPlugin
         }
         $css = '<style>' . implode("\n", $this->css) . '</style>';
         $data['output'] = preg_replace(
-          '/(<head>)/i',
-          "\\0\n" . $css,
+          '/(<\/head>)/i',
+          $css . "\n\\0\n",
           $data['output']
         );
 
